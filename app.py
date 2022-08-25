@@ -147,20 +147,21 @@ st.write(df)
 st.caption(f"last updated {str(dt.datetime.now())}")
 #st.markdown("---")
 
-st.header(med.name)
+if intake_sel_med:
+    st.header(med.name)
 
-df = pd.concat([
-    pd.Series(med.history),
-    pd.Series(med.get_remaining_doses())
-    ],
-    axis=0,
-    names=['type',None],
-    keys=['history','scheduled']
-    ).reset_index(0).rename(columns={0:'dt'}).set_index('dt')
-    
+    df = pd.concat([
+        pd.Series(med.history),
+        pd.Series(med.get_remaining_doses())
+        ],
+        axis=0,
+        names=['type',None],
+        keys=['history','scheduled']
+        ).reset_index(0).rename(columns={0:'dt'}).set_index('dt')
+        
 
-#st.line_chart(df, x='dt',y='type')
-st.dataframe(df)
+    #st.line_chart(df, x='dt',y='type')
+    st.dataframe(df)
 
 # import altair as alt
 
