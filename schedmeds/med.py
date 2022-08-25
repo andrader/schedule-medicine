@@ -7,7 +7,7 @@ import pickle
 import re
 from time import sleep
 
-from parse_timedelta import parse_timedelta
+from .parse_timedelta import parse_timedelta
 
 class Med:
     def __init__(
@@ -42,15 +42,19 @@ class Med:
 
         return [last_dose + (i + 1) * dose_interval for i in range(n_doses_remaining)]
 
-    def register_dosage(self, dose_time="now", fmt="%H:%M"):
-
-        if dose_time == "now":
-            dose_time = dt.datetime.now()
+    def register_intake(self, dose_datetime="now"):
+        if dose_datetime == "now":
+            dose_datetime = dt.datetime.now()
+        elif isinstance(dose_datetime, dt.datetime):
+            pass
         else:
-            dose_time = dt.strptime(dose_time, fmt)
-
-        self.history.append(dose_time)
-        return self
+            dose_datetime = dt.datetime.fromisoformat(dose_datetime)
+        
+        if dose_datetime not in self.history:
+            self.history.append(dose_datetime)
+            return True
+        else:
+            return False
 
     def _str(self):
         nt = "\n\t"
@@ -75,23 +79,6 @@ class Med:
     def __str__(self):
         return self.__repr__()
     
-    def save(self, path):
-        Path(path).write_bytes(pickle.dumps(self))
-    
-    @staticmethod
-    def load(path):
-        return pickle.loads(Path(path).read_bytes())
-
-    @classmethod
-    def loads(cls, s):
-        d = json.loads(s)
-        return cls(**d)
-
-    def dumps(self):
-        keys = ['name', 'dose_interval', 'total_period', 'number_doses', 'history']
-        d = {k:v for k,v in self.__dict__.items() if k in keys}        
-        return dumps(d, indent=2, default=str)
-
         
 
 
