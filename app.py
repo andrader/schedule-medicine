@@ -7,8 +7,11 @@ import jsonpickle
 from schedmeds.med import Med
 from schedmeds.parse_timedelta import strfdelta
 
-PATH_DATA = Path("data/")
 DT_FMT = "%b %d, %H:%M"
+
+PATH_DATA = Path("data/")
+PATH_DATA.mkdir(parents=True, exist_ok=True)
+SESSION_PICKLE_PATH = PATH_DATA / "data_meds.pickle"
 
 
 from add_med import add_med
@@ -70,7 +73,6 @@ def load_meds_to_session():
 
 
 ## app CONTENT
-SESSION_PICKLE_PATH = PATH_DATA / "allmeds.pickle"
 
 with st.spinner("Loading meds data..."):
     meds = load_meds_to_session()
