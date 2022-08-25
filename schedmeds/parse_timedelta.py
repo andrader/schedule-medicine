@@ -1,5 +1,6 @@
 import re
 import datetime as dt
+from string import Formatter
 
 _PATTERN = (
     r"^(?!\d*$)" # negative lookahead: garante que nao é str vazia ou só digitos: '', '1'
@@ -14,8 +15,13 @@ _COMPILED_PATTERN = re.compile(_PATTERN, re.IGNORECASE)
 
 
 def parse_timedelta(string):
-    if isinstance(string, dt.timedelta):
+    if isinstance(string, str):
+        pass
+    elif isinstance(string, dt.timedelta):
         return string
+    else:
+        raise ValueError("string arg should be of type str or dt.timedelta")
+    
 
     matchs = re.match(_COMPILED_PATTERN, string)
     if not matchs:
@@ -70,7 +76,7 @@ def test_valid_strings():
 
 def test_invalid_strings():
     print("testing invalid strings")
-    ss = ["", " ", "fsdfs", "1", "   12  "]
+    ss = ["", " ", "fsdfs", "1", "   12  ", None, 12]
 
     for s in ss:
         passed = False
@@ -84,3 +90,45 @@ def test_invalid_strings():
     
     return True
 
+
+
+def strfdelta(tdelta: dt.timedelta, fmt: str ='auto'):
+    """Convert a datetime.timedelta to a custom-
+    formatted string.
+    
+    Some examples:
+        '{D:02}d {H:02}h {M:02}m {S:02}s' --> '05d 08h 04m 02s' (default)
+        '{W}w {D}d {H}:{M:02}:{S:02}'     --> '4w 5d 8:04:02'
+        '{D:2}d {H:2}:{M:02}:{S:02}'      --> ' 5d  8:04:02'
+        '{H}h {S}s'                       --> '72h 800s'
+
+    from https://stackoverflow.com/a/42320260
+    """   
+    f = Formatter()
+    auto=False
+    if fmt=='auto':
+        fmt = '{D}d {H}h {M}m {S}s'
+        auto=True
+    #print(list(f.parse(fmt)))
+    field_names = [field_tuple[1] for field_tuple in f.parse(fmt)]
+    possible_fields = {'W': 604800, 'D': 86400, 'H': 3600, 'M': 60, 'S': 1}
+    values = {}
+    remainder = int(tdelta.total_seconds())
+    for field, val in possible_fields.items():
+        if field in field_names:
+            div, remainder = divmod(remainder, val)
+            if auto and div==0:
+                # remove field if 0
+                toreplace = f"{{{field}}}{field.lower()}"
+                fmt = fmt.replace(toreplace, "").strip()
+            else:
+                values[field] = div
+
+    return f.format(fmt, **values)
+
+
+if __name__=='__main__':
+
+    print(test_invalid_strings())
+    print(test_valid_strings())
+    print(test_timedelta_convertion())
