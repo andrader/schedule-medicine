@@ -1,0 +1,7 @@
+#https://docs.streamlit.io/library/advanced-features/configuration
+
+[global]
+
+
+# https://github.com/streamlit/streamlit/issues/4489#issuecomment-1070985236
+dataFrameSerialization = "legacy"
