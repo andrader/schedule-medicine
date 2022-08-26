@@ -73,6 +73,17 @@ def load_meds_to_session():
 
 
 ## app CONTENT
+st.set_page_config(
+     page_title="My Medicines",
+     page_icon="💊",
+     layout="wide",
+     initial_sidebar_state="expanded",
+     menu_items={
+         'Get Help': None,
+         'Report a bug': None,
+         'About': None
+     }
+ )
 
 with st.spinner("Loading meds data..."):
     meds = load_meds_to_session()
@@ -142,7 +153,7 @@ with st.sidebar:
 
 
 # APP
-st.title("Medicines 💊")
+#st.title("Medicines 💊")
 df = get_df_from_meds(meds)
 st.write(df)
 
